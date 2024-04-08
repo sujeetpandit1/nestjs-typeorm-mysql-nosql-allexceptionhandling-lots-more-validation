@@ -27,14 +27,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // fileStream.write(`[${new Date().toISOString()}] Stack Trace: ${exception.stack}\n`);
     fileStream.end();
 
-    // console.log(exception.response);
+    // console.log(exception);
     // console.log(exception.status);
 
     return response.send({
       statusCode: exception.status,
-      // message: exception.response.message, // with try and catch
-      message: exception.response, // withiut try and catch
+      message: exception.response.message, // with try and catch
+      // message: exception.response, // withiut try and catch
       timestamp: new Date().toISOString(),
+      error: exception.response.error,
       path: request.url,
     });
   }
