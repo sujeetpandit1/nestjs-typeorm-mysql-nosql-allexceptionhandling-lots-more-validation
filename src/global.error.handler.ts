@@ -24,7 +24,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const fileStream = fs.createWriteStream(path.join(logsDir, 'exceptions.log'), { flags: 'a' });
     fileStream.write(`[${new Date().toISOString()}] Error: ${exception.message}\n`);
-    fileStream.write(`[${new Date().toISOString()}] Stack Trace: ${exception.stack}\n`);
+    // fileStream.write(`[${new Date().toISOString()}] Stack Trace: ${exception.stack}\n`);
     fileStream.end();
 
     // console.log(exception.response);
@@ -32,7 +32,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     return response.send({
       statusCode: exception.status,
-      message: exception.response,
+      // message: exception.response.message, // with try and catch
+      message: exception.response, // withiut try and catch
       timestamp: new Date().toISOString(),
       path: request.url,
     });

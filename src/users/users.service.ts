@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -15,16 +15,16 @@ export class UsersService {
   async createUser(createUserDto: CreateUserDto): Promise<Partial<CreateUserDto>> {
     const { name, email, password, role, dob, address, pincode, mobile_no } = createUserDto;
   
-    // Check if email or mobile number already exists
+    // Check if email or mobile number already exists or comment if using try and catch
     const existingUser = await this.userRepository.findOne({
       where: [{ email }, { mobile_no }]
     });
 
-    if (existingUser) {
+    if (existingUser) { //this validation can be used for both postegres and mysql db, to avoid additional call, choose try and catch
       if (existingUser.email === email) {
-        throw new HttpException('Email Already Exists', HttpStatus.BAD_REQUEST);
+        throw new HttpException(`Email (${existingUser.email}) Already Exists`, HttpStatus.CONFLICT);
       } else {
-        throw new HttpException('Mobile Number Already Exists', HttpStatus.BAD_REQUEST);
+        throw new HttpException(`Mobile Number (${existingUser.mobile_no}) Already Exists`, HttpStatus.CONFLICT);
       }
     }
       const hashedPass = await bcrypt.hash(password, 10);
@@ -38,12 +38,24 @@ export class UsersService {
         pincode: pincode,
         mobile_no: mobile_no
       });
-  
-      const savedUser = await this.userRepository.save(newUser); // Save user to database
-  
-      const { password: omitPassword, ...userData } = savedUser;
 
-      return userData; // Return saved user data
+      // try {
+        const savedUser = await this.userRepository.save(newUser); // Save user to database
+        
+        const { password: omitPassword, ...userData } = savedUser;
+        return userData; // Return saved user data
+
+      // } catch (error) {
+      //   console.log(error);
+      //   if(error.code === '23505') { for postegres and mysql code isn different
+      //     throw new ConflictException(error.detail);
+      //   } else {
+      //     throw new InternalServerErrorException();
+      //   }
+      // }
+  
+  
+
   }
   
 
