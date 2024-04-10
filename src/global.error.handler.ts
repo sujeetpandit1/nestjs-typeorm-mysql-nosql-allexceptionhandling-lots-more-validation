@@ -15,6 +15,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // Log the exception
     // Logger.error(`Error: ${exception.message}`, exception.stack, 'ExceptionFilter');
     // Logger.error(`Error: ${exception.message}`);
+    // Logger.error( `Stack Trace: ${exception.stack}`)
 
     // Create the logs directory if it doesn't exist
     const logsDir = path.join(__dirname, '../logs');

@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -69,7 +70,7 @@ export class UsersService {
 
     if (user && (await bcrypt.compare(password, user.password))) { 
       let payload = { email: user.email, id: user.id };
-      let accessToken =  this.jwtService.sign(payload, { secret: "secret", expiresIn: "6h" })
+      let accessToken =  this.jwtService.sign(payload, {secret:'secret', expiresIn: '6h'})
       return {accessToken}
     } else {
       throw new UnauthorizedException('Please check your login credentials');
@@ -91,5 +92,80 @@ export class UsersService {
       return userWithoutPassword;
     });
   return data;
+  }
+
+  async getUserById(id: number):Promise<Partial<User>>{
+    const found = await this.userRepository.findOne({ where: { id } });
+
+    if (!found) {
+      throw new NotFoundException(`User with ID "${id}" not found.`);
+    }
+
+    // Exclude password field from the returned user object
+    const { password, createdAt, updatedAt, ...userWithoutPassword } = found;
+    return userWithoutPassword;
+  }
+
+
+  async updateProfile(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findOne({where:{id: userId}}); // Find the user by ID
+    // console.log(user);
+    
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+
+    try {
+      
+      // Check if updateUserDto is defined and not undefined
+      if (updateUserDto) {
+        // Update user's profile with data from updateUserDto
+        if (updateUserDto.name) {
+          user.name = updateUserDto.name;
+        }
+        if (updateUserDto.email) {
+          user.email = updateUserDto.email;
+        }
+        if (updateUserDto.role) {
+          user.role = updateUserDto.role;
+        }
+        if (updateUserDto.dob) {
+          user.dob = updateUserDto.dob;
+        }
+        if (updateUserDto.address) {
+          user.address = updateUserDto.address;
+        }
+        if (updateUserDto.pincode) {
+          user.pincode = updateUserDto.pincode;
+        }
+
+        if (updateUserDto.mobile_no) {
+          user.mobile_no = updateUserDto.mobile_no;
+        }
+        // Other property updates...
+  
+        // try {
+        // Save the updated user to the database
+        await this.userRepository.save(user);
+      }
+      return user
+    } catch (error) {
+      // console.log(error);
+      if(error.code === '23505') { //for postegres and mysql code isn different
+            throw new ConflictException(error.detail);
+          } else {
+            throw new InternalServerErrorException();
+          }
+    }
+
+  
+  }
+
+  async removeProfile(id: number): Promise<void> {
+    const result = await this.userRepository.delete({ id });
+    
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
   }
 }
