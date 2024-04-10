@@ -33,8 +33,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     return response.send({
       statusCode: exception.status,
-      message: exception.response.message, // with try and catch
-      // message: exception.response, // withiut try and catch
+      // message: exception.response.message, // with try and catch
+      message: exception.response, // without try and catch
       timestamp: new Date().toISOString(),
       error: exception.response.error,
       path: request.url,

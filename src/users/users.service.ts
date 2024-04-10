@@ -51,16 +51,13 @@ export class UsersService {
         return userData; // Return saved user data
 
       // } catch (error) {
-      //   console.log(error);
-      //   if(error.code === '23505') { for postegres and mysql code isn different
+      //   // console.log(error);
+      //   if(error.code === '23505') { //for postegres and mysql code isn different
       //     throw new ConflictException(error.detail);
       //   } else {
       //     throw new InternalServerErrorException();
       //   }
       // }
-  
-  
-
   }
 
   async login(loginDto: LoginUserDto): Promise<{ accessToken: string }> {
@@ -69,8 +66,8 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { email: email }});
 
     if (user && (await bcrypt.compare(password, user.password))) { 
-      let payload = { email: user.email, id: user.id };
-      let accessToken =  this.jwtService.sign(payload, {secret:'secret', expiresIn: '6h'})
+      let payload = { email: user.email, id: user.id, role: user.role };
+      let accessToken =  this.jwtService.sign(payload, {secret:process.env.JWT_SECRET, expiresIn: process.env.JWT_EXPIRES})
       return {accessToken}
     } else {
       throw new UnauthorizedException('Please check your login credentials');
@@ -110,13 +107,38 @@ export class UsersService {
   async updateProfile(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOne({where:{id: userId}}); // Find the user by ID
     // console.log(user);
+
+    // If there's no updateUserDto or it's empty, return a success message
+    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
+      return 
+    }
     
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
 
-    try {
-      
+    const { email, mobile_no } = updateUserDto;
+    if (email === user.email && mobile_no === user.mobile_no) {
+        return user;
+    }
+
+    const existingUser = await this.userRepository.findOne({
+      where: [
+          { email },
+          { mobile_no }
+      ]
+  });
+
+  if (existingUser && existingUser.id !== userId) {
+      if (existingUser.email === email) {
+          throw new HttpException(`Email (${email}) Already Exists`, HttpStatus.CONFLICT);
+      }
+      if (existingUser.mobile_no === mobile_no) {
+          throw new HttpException(`Mobile Number (${mobile_no}) Already Exists`, HttpStatus.CONFLICT);
+      }
+  }
+
+    // try {
       // Check if updateUserDto is defined and not undefined
       if (updateUserDto) {
         // Update user's profile with data from updateUserDto
@@ -144,18 +166,18 @@ export class UsersService {
         }
         // Other property updates...
   
-        // try {
         // Save the updated user to the database
+        Object.assign(user, updateUserDto);
         await this.userRepository.save(user);
-      }
-      return user
-    } catch (error) {
-      // console.log(error);
-      if(error.code === '23505') { //for postegres and mysql code isn different
-            throw new ConflictException(error.detail);
-          } else {
-            throw new InternalServerErrorException();
-          }
+        return user
+      // }catch (error) {
+      //   // console.log(error);
+      //   if(error.code === '23505') { //for postegres and mysql code isn different
+      //     throw new ConflictException(error.detail);
+      //   } else {
+      //     throw new InternalServerErrorException();
+      //   }
+      // }
     }
 
   
