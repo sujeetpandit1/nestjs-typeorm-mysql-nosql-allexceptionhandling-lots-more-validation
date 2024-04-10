@@ -1,6 +1,7 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from 'dotenv';
 import { User } from "src/users/entities/user.entity";
+import { Product } from "src/product/entities/product.entity";
 
 dotenv.configDotenv();
 
@@ -12,7 +13,7 @@ export const dataSourceOptions:DataSourceOptions = {
   password: process.env.POSTGRES_PASSWORD as string,
   database: process.env.POSTGRES_DB,
 //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  entities: [User], // Include the entity directly
+  entities: [User, Product], // Include the entity directly
   migrations: ['src/migrations/*.ts'],
   synchronize: true, // Change to 'false' in production for migrations
 }
