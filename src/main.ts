@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as morgan from 'morgan'
 import rateLimit from 'express-rate-limit';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { AllExceptionsFilter } from './global.error.handler';
+import { AllExceptionsFilter } from './utils/global.error.handler';
 
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
