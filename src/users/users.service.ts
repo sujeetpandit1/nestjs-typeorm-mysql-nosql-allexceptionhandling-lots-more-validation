@@ -8,6 +8,7 @@ import * as jwt from 'jsonwebtoken'
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { validateDOB } from 'src/utils/dob';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,13 @@ export class UsersService {
 
   async createUser(createUserDto: CreateUserDto): Promise<Partial<CreateUserDto>> {
     const { name, email, password, role, dob, address, pincode, mobile_no } = createUserDto;
+
+    // Validate dob
+    const dobError: any = validateDOB(dob);
+    if (dobError) {
+        throw new HttpException(dobError, HttpStatus.BAD_REQUEST);
+    }
+    
   
     // Check if email or mobile number already exists or comment if using try and catch
     const existingUser = await this.userRepository.findOne({
@@ -66,7 +74,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { email: email }});
 
     if (user && (await bcrypt.compare(password, user.password))) { 
-      let payload = { email: user.email, id: user.id, role: user.role };
+      let payload = { email: user.email, id: user.id };
       let accessToken =  this.jwtService.sign(payload, {secret:process.env.JWT_SECRET, expiresIn: process.env.JWT_EXPIRES})
       return {accessToken}
     } else {
@@ -104,7 +112,7 @@ export class UsersService {
   }
 
 
-  async updateProfile(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async updateProfile(userId: number, updateUserDto: UpdateUserDto): Promise<Partial<User>> {
     const user = await this.userRepository.findOne({where:{id: userId}}); // Find the user by ID
     // console.log(user);
 
@@ -164,7 +172,12 @@ export class UsersService {
         if (updateUserDto.mobile_no) {
           user.mobile_no = updateUserDto.mobile_no;
         }
-        // Other property updates...
+
+        // Validate dob
+        const dobError: any = validateDOB(updateUserDto.dob);
+        if (dobError) {
+            throw new HttpException(dobError, HttpStatus.BAD_REQUEST);
+        }
   
         // Save the updated user to the database
         Object.assign(user, updateUserDto);
