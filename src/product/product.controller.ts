@@ -11,28 +11,31 @@ export class ProductController {
   @Post('addProduct')
   @UseGuards(JwtAuthGuard)
   async create(@Body() createProductDto: CreateProductDto, @Req() req: any){
-    const user = req.user; // Extract user ID from request
-
+    const user = req.user; // Extract user ID from request    
     return this.productService.create(user, createProductDto);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.productService.findAll();
-  // }
+  @Get('allProducts')
+  @UseGuards(JwtAuthGuard)
+  async findAll() {
+    return this.productService.findAll();
+  }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.productService.findOne(+id);
-  // }
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: number) {
+    return await this.productService.findOne(+id);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-  //   return this.productService.update(+id, updateProductDto);
-  // }
+  @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
+  async update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {    
+    return this.productService.update(+id, updateProductDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.productService.remove(+id);
-  // }
+  @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
+  async remove(@Param('id') id: number) {
+    return this.productService.remove(+id);
+  }
 }

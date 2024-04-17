@@ -2,9 +2,9 @@ import { IsNotEmpty, IsNumber, IsString, IsDecimal, IsOptional } from 'class-val
 
 
 export class CreateProductDto {
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // userId: number;
 
   @IsNotEmpty()
   @IsString()

@@ -20,7 +20,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // Create the logs directory if it doesn't exist
     const logsDir = path.join(__dirname, '../logs');
     if (!fs.existsSync(logsDir)) {
-      fs.mkdirSync(logsDir);
+      fs.mkdirSync(logsDir); 
     }
 
     const fileStream = fs.createWriteStream(path.join(logsDir, 'exceptions.log'), { flags: 'a' });
@@ -28,7 +28,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // fileStream.write(`[${new Date().toISOString()}] Stack Trace: ${exception.stack}\n`);
     fileStream.end();
 
-    // console.log(exception);
+    console.log(exception);
     // console.log(exception.status);
 
     return response.send({

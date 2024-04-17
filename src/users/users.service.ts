@@ -74,7 +74,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { email: email }});
 
     if (user && (await bcrypt.compare(password, user.password))) { 
-      let payload = { email: user.email, id: user.id };
+      let payload = { email: user.email, id: user.id, role: user.role};
       let accessToken =  this.jwtService.sign(payload, {secret:process.env.JWT_SECRET, expiresIn: process.env.JWT_EXPIRES})
       return {accessToken}
     } else {
@@ -161,6 +161,12 @@ export class UsersService {
         }
         if (updateUserDto.dob) {
           user.dob = updateUserDto.dob;
+          // Validate dob
+          const dobError: any = validateDOB(updateUserDto.dob);
+          if (dobError) {
+              throw new HttpException(dobError, HttpStatus.BAD_REQUEST);
+          }
+  
         }
         if (updateUserDto.address) {
           user.address = updateUserDto.address;
@@ -173,12 +179,6 @@ export class UsersService {
           user.mobile_no = updateUserDto.mobile_no;
         }
 
-        // Validate dob
-        const dobError: any = validateDOB(updateUserDto.dob);
-        if (dobError) {
-            throw new HttpException(dobError, HttpStatus.BAD_REQUEST);
-        }
-  
         // Save the updated user to the database
         Object.assign(user, updateUserDto);
         await this.userRepository.save(user);
