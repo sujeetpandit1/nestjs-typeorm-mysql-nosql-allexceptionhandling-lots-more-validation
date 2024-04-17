@@ -26,7 +26,7 @@ export const dataSourceOptions:DataSourceOptions = {
 //   password: process.env.MYSQL_PASSWORD as string,
 //   database: process.env.MYSQL_DB,
 // //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-//   entities: [User], // Include the entity directly
+//   entities: [User, Product], // Include the entity directly
 //   migrations: ['src/migrations/*.ts'],
 //   synchronize: true, // Change to 'false' in production for migrations
 // }

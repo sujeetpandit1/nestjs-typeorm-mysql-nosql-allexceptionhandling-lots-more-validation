@@ -7,11 +7,11 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { AllExceptionsFilter } from './utils/global.error.handler';
 
 async function bootstrap() {
-  // const app = await NestFactory.create(AppModule);
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter()
-  );
+  const app = await NestFactory.create(AppModule);
+  // const app = await NestFactory.create<NestFastifyApplication>(
+  //   AppModule,
+  //   new FastifyAdapter()
+  // );
   app.use(morgan('combined'));
   // Global error handling
   app.useGlobalFilters(new AllExceptionsFilter()); 

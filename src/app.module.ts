@@ -7,9 +7,9 @@ import { ConfigValidation } from './database/config.validation';
 import { ProductModule } from './product/product.module';
 
 
-
 @Module({
-  imports: [ConfigModule.forRoot({
+  imports: [
+    ConfigModule.forRoot({
     validationSchema: ConfigValidation
   }) , 
     TypeOrmModule.forRoot(dataSourceOptions),UsersModule, ProductModule],
